@@ -67,6 +67,7 @@ Drawing.SimpleGraph = function(options) {
   var graph = new Graph({limit: options.limit});
   
   var lineMaterial = new THREE.LineBasicMaterial( { color: 0x333333, opacity: 0.4, linewidth: 0.05 } );
+  var sprite = THREE.ImageUtils.loadTexture( "textures/sprites/ball.png" );
 
   var geometry = new THREE.Geometry();
   var lineGeometry = new THREE.Geometry();
@@ -143,6 +144,18 @@ Drawing.SimpleGraph = function(options) {
       info.setAttributeNode(id_attr);
       document.body.appendChild( info );
     }
+
+    var material = new THREE.ParticleBasicMaterial( { size: 85, map: sprite, vertexColors: true } );
+
+    var mesh = new THREE.ParticleSystem( geometry, material);
+    
+    scene.add( mesh );
+
+    line = new THREE.Line(lineGeometry, lineMaterial, THREE.LinePieces );
+    line.scale.x = line.scale.y = line.scale.z = 1;
+    line.originalScale = 1;
+      
+    scene.add( line );
   }
   
 
@@ -201,15 +214,7 @@ Drawing.SimpleGraph = function(options) {
       
   	info_text.calc = "";
 
-    var mesh = new THREE.ParticleSystem( geometry, new THREE.ParticleBasicMaterial( { size: 100, color: 0x333333 } ) );
     
-    scene.add( mesh );
-
-    line = new THREE.Line(lineGeometry, lineMaterial, THREE.LinePieces );
-    line.scale.x = line.scale.y = line.scale.z = 1;
-    line.originalScale = 1;
-      
-    scene.add( line );
   }
 
 
@@ -246,7 +251,7 @@ Drawing.SimpleGraph = function(options) {
         var label_object = new THREE.Label(node.id);
       }
       node.data.label_object = label_object;
-      scene.addObject( node.data.label_object );
+      scene.add( node.data.label_object );
     }
 
     var area = 5000;
@@ -260,7 +265,7 @@ Drawing.SimpleGraph = function(options) {
     draw_object.id = node.id;
     node.data.draw_object = draw_object;
     node.position = draw_object.position;
-    scene.addObject( node.data.draw_object );
+    scene.add( node.data.draw_object );
   }
 
 
@@ -312,7 +317,7 @@ Drawing.SimpleGraph = function(options) {
             var label_object = new THREE.Label(node.id, node.data.draw_object);
           }
           node.data.label_object = label_object;
-          scene.addObject( node.data.label_object );
+          scene.add( node.data.label_object );
         }
       }
     } else {
@@ -320,7 +325,7 @@ Drawing.SimpleGraph = function(options) {
       for(var i=0; i<length; i++) {
         var node = graph.nodes[i];
         if(node.data.label_object != undefined) {
-          scene.removeObject( node.data.label_object );
+          scene.remove( node.data.label_object );
           node.data.label_object = undefined;
         }
       }
