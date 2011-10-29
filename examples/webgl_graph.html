@@ -19,7 +19,7 @@
   <script type="text/javascript" src="../build/Three.js"></script>
 	<script type="text/javascript" src="js/RequestAnimationFrame.js"></script>
 	<script type="text/javascript" src="js/Stats.js"></script>
-  
+
   <script type="text/javascript" src="graph/graph.js"></script>
   <script type="text/javascript" src="graph/utils/Label.js"></script>
   <script type="text/javascript" src="graph/utils/ObjectSelection.js"></script>
@@ -31,25 +31,21 @@
     <script type="text/javascript">
       var drawing;
       function createDrawing() {
-        var index = parseInt(location.search.split("?")[1]);
-        if(isNaN(index)) {
-          index = 1;
-        }
+        var index = 1;
+        var numNodes = parseInt(location.search.split("?")[1]);
+
+        if(isNaN(numNodes)) { numNodes = 100; }
+        
         /* Change these values to draw more nodes (numNodes) */
         switch(index) {
           case 0:
-            drawing = new Drawing.SimpleGraph({layout: '2d', selection: false, numNodes: 1000, showStats: true, showInfo: true});
+            drawing = new Drawing.SimpleGraph({layout: '2d', selection: false, numNodes: numNodes, showStats: true, showInfo: true});
             break;
           case 1:
-            drawing = new Drawing.SimpleGraph({layout: '3d', selection: true, numNodes: 100, graphLayout:{attraction: 5, repulsion: 0.5, iterations:1}, showStats: true, showInfo: true});
+            drawing = new Drawing.SimpleGraph({layout: '3d', selection: true, numNodes: numNodes, graphLayout:{attraction: 5, repulsion: 0.5, iterations:1000}, showStats: true, showInfo: true});
             break;
-          case 2:
-            drawing = new Drawing.SphereGraph({numNodes: 150, showStats: true, showInfo: true});
-            break;
-          default:
-              drawing = new Drawing.SimpleGraph({layout: '3d', selection: true, numNodes: 150, showStats: true, showInfo: true});
         }
-        document.getElementById("drawing_select").selectedIndex = index;
+        //document.getElementById("drawing_select").selectedIndex = index;
       }
     </script>
         
@@ -80,6 +76,7 @@
   </head>
   <body onload="createDrawing()">
     <div id="options">
+<!--
       <form>
         <p>
           <label>Drawing</label><br>
@@ -97,6 +94,7 @@
           <input type="button" value="Stop layout" onclick="drawing.stop_calculating();"> 
         </p>
       </form>
+-->
     </div>
 
     <div style="position: absolute; bottom: 0;">

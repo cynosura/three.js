@@ -51,28 +51,28 @@ var Drawing = Drawing || {};
 Drawing.SimpleGraph = function(options) {
   var options = options || {};
   
-  this.layout = options.layout || "2d";
-  this.layout_options = options.graphLayout || {};
-  this.show_stats = options.showStats || false;
-  this.show_info = options.showInfo || false;
-  this.show_labels = options.showLabels || false;
-  this.selection = options.selection || false;
-  this.limit = options.limit || 10;
-  this.nodes_count = options.numNodes || 20;
-  this.edges_count = options.numEdges || 10;
+  this.layout          = options.layout || "2d";
+  this.layout_options  = options.graphLayout || {};
+  this.show_stats      = options.showStats || false;
+  this.show_info       = options.showInfo || false;
+  this.show_labels     = options.showLabels || false;
+  this.selection       = options.selection || false;
+  this.limit           = options.limit || 10;
+  this.nodes_count     = options.numNodes || 20;
+  this.edges_count     = options.numEdges || 10;
 
-  var camera, scene, renderer, interaction, geometry, object_selection, controls;
-  var stats;
-  var info_text = {};
-  var graph = new Graph({limit: options.limit});
-  
-  var lineMaterial = new THREE.LineBasicMaterial( { color: 0x333333, opacity: 0.4, linewidth: 0.05 } );
-  var sprite = THREE.ImageUtils.loadTexture( "textures/sprites/ball.png" );
+  var camera, scene, renderer, interaction, geometry, object_selection, controls, stats;
 
-  var geometry = new THREE.Geometry();
-  var lineGeometry = new THREE.Geometry();
+  var info_text        = {};
+  var graph            = new Graph({limit: options.limit});
   
-  var geometries = [];
+  var lineMaterial     = new THREE.LineBasicMaterial( { color: 0x333333, opacity: 0.4, linewidth: 0.05 } );
+  var sprite           = THREE.ImageUtils.loadTexture( "textures/sprites/ball.png" );
+
+  var particleGeometry = new THREE.Geometry();
+  var lineGeometry     = new THREE.Geometry();
+  
+  
   var that=this;
 
   init();
@@ -108,23 +108,17 @@ Drawing.SimpleGraph = function(options) {
 
     scene = new THREE.Scene();
     scene.fog = new THREE.FogExp2( 0xFFFFFF, 0.00004 );
+
+    var material = new THREE.ParticleBasicMaterial( { size: 85, map: sprite, vertexColors: true } );
+    var mesh = new THREE.ParticleSystem(particleGeometry, material);
     
-    // Create node selection, if set
-    if(that.selection) {
-      object_selection = new THREE.ObjectSelection({
-        domElement: renderer.domElement,
-        selected: function(obj) {
-          // display info
-          if(obj != null) {
-            info_text.select = "Object " + obj.id;
-          } else {
-            delete info_text.select;
-          }
-        },
-        clicked: function(obj) {
-        }
-      });
-    }
+    scene.add( mesh );
+
+    line = new THREE.Line(lineGeometry, lineMaterial, THREE.LinePieces );
+    line.scale.x = line.scale.y = line.scale.z = 1;
+    line.originalScale = 1;
+      
+    scene.add( line );
 
     document.body.appendChild( renderer.domElement );
   
@@ -145,17 +139,7 @@ Drawing.SimpleGraph = function(options) {
       document.body.appendChild( info );
     }
 
-    var material = new THREE.ParticleBasicMaterial( { size: 85, map: sprite, vertexColors: true } );
-
-    var mesh = new THREE.ParticleSystem( geometry, material);
     
-    scene.add( mesh );
-
-    line = new THREE.Line(lineGeometry, lineMaterial, THREE.LinePieces );
-    line.scale.x = line.scale.y = line.scale.z = 1;
-    line.originalScale = 1;
-      
-    scene.add( line );
   }
   
 
@@ -168,6 +152,7 @@ Drawing.SimpleGraph = function(options) {
 
     var node = new Node(0);
     node.data.title = "This is node " + node.id;
+    
     graph.addNode(node);
     drawParticle(node);
 
@@ -206,19 +191,11 @@ Drawing.SimpleGraph = function(options) {
   	info_text.nodes = "Nodes " + graph.nodes.length;
     info_text.edges = "Edges " + graph.edges.length;
   	
-  	// Generate layout if not finished
-    while(!graph.layout.finished) {
-      info_text.calc = "<span style='color: red'>Calculating layout...</span>";
-      graph.layout.generate();
-    }
+  	
       
   	info_text.calc = "";
-
-    
   }
 
-
-  
   function drawParticle(node) {
     var area = 5000;
 
@@ -229,60 +206,27 @@ Drawing.SimpleGraph = function(options) {
     var vec = new THREE.Vector3(x,y,z);
     var v = new THREE.Vertex(vec);
     
-    geometry.vertices.push(v);
+    particleGeometry.vertices.push(v);
 
     v.id = node.id;
     node.data.draw_object = v;
     node.position = v.position;
   }
-
   
-
-  /**
-   *  Create a node object and add it to the scene.
-   */
-  function drawNode(node) {
-    var draw_object = new THREE.Mesh( geometry, [ new THREE.MeshBasicMaterial( {  color: Math.random() * 0xffffff, opacity: 1.0 } ) ] );
-    
-    if(that.show_labels) {
-      if(node.data.title != undefined) {
-        var label_object = new THREE.Label(node.data.title);
-      } else {
-        var label_object = new THREE.Label(node.id);
-      }
-      node.data.label_object = label_object;
-      scene.add( node.data.label_object );
-    }
-
-    var area = 5000;
-    draw_object.position.x = Math.floor(Math.random() * (area + area + 1) - area);
-    draw_object.position.y = Math.floor(Math.random() * (area + area + 1) - area);
-    
-    if(that.layout === "3d") {
-      draw_object.position.z = Math.floor(Math.random() * (area + area + 1) - area);
-    }
-
-    draw_object.id = node.id;
-    node.data.draw_object = draw_object;
-    node.position = draw_object.position;
-    scene.add( node.data.draw_object );
-  }
-
-
   /**
    *  Create an edge object (line) and add it to the scene.
    */
   function drawEdge(source, target) {
-      
       lineGeometry.vertices.push(new THREE.Vertex(source.data.draw_object.position));
       lineGeometry.vertices.push(new THREE.Vertex(target.data.draw_object.position));
-
-
   }
 
 
   function animate() {
     requestAnimationFrame( animate );
+
+    
+
     render();
     if(that.show_info) {
       printInfo();
@@ -291,13 +235,29 @@ Drawing.SimpleGraph = function(options) {
 
 
   function render() {
-    
 
     // Update position of lines (edges)
     /*for(var i=0; i<geometries.length; i++) {
       geometries[i].__dirtyVertices = true;
     }*/
 
+
+    // Generate layout if not finished
+    if(!graph.layout.finished) {
+      info_text.calc = "<span style='color: red'>Calculating layout...</span>";
+      graph.layout.generate();
+
+      
+      
+      geometry.__dirtyVertices = true;
+      lineGeometry.__dirtyVertices = true;
+      
+
+    } else {
+      info_text.calc = "";
+    }
+  
+    
 
     // Show labels if set
     // It creates the labels when this options is set during visualization
@@ -321,6 +281,7 @@ Drawing.SimpleGraph = function(options) {
         }
       }
     } else {
+      /*
       var length = graph.nodes.length;
       for(var i=0; i<length; i++) {
         var node = graph.nodes[i];
@@ -328,13 +289,14 @@ Drawing.SimpleGraph = function(options) {
           scene.remove( node.data.label_object );
           node.data.label_object = undefined;
         }
-      }
+      
+      }*/
     }
 
     // render selection
-    if(that.selection) {
+    /*if(that.selection) {
       object_selection.render(scene, camera);
-    }
+    }*/
 
     // update stats
     if(that.show_stats) {
