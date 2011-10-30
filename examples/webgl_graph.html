@@ -1,51 +1,34 @@
-<!-- 
-  This is an example html file with some options added. The minimum html file for
-  the graph visualization is:
-  <!DOCTYPE html>
-  <html>
-    <head>
-      <title>Graph Visualization</title>
-      <script type="text/javascript" src="path/to/graph-min.js"></script>
-    </head>
-    <body onload="new Drawing.SimpleGraph({layout: '3d', showStats: true, showInfo: true})">
-    </bod>
-  </html> 
--->
 <!DOCTYPE html>
 <html>
   <head>
     <title>Graph Visualization</title>
-    <!--<script type="text/javascript" src="build/graph-min.js"></script>-->
-  <script type="text/javascript" src="../build/Three.js"></script>
-	<script type="text/javascript" src="js/RequestAnimationFrame.js"></script>
-	<script type="text/javascript" src="js/Stats.js"></script>
+    
+    <script type="text/javascript" src="../build/Three.js"></script>
+    <script type="text/javascript" src="js/RequestAnimationFrame.js"></script>
+    <script type="text/javascript" src="js/Stats.js"></script>
 
-  <script type="text/javascript" src="graph/graph.js"></script>
-  <script type="text/javascript" src="graph/utils/Label.js"></script>
-  <script type="text/javascript" src="graph/utils/ObjectSelection.js"></script>
-	<script type="text/javascript" src="graph/utils/threejs-interaction.js"></script>
-	<script type="text/javascript" src="graph/layouts/force-directed-layout.js"></script>
-	<script type="text/javascript" src="graph/drawings/simple_graph.js"></script>
-	
-	
+    <script type="text/javascript" src="graph/graph.js"></script>
+    <script type="text/javascript" src="graph/utils/Label.js"></script>
+    <!--<script type="text/javascript" src="graph/utils/ObjectSelection.js"></script> -->
+    <!--<script type="text/javascript" src="graph/utils/threejs-interaction.js"></script> -->
+    <script type="text/javascript" src="graph/layouts/force-directed-layout.js"></script>
+    <script type="text/javascript" src="graph/drawings/simple_graph.js"></script>
+    <link rel="stylesheet" href="http://twitter.github.com/bootstrap/1.3.0/bootstrap.min.css">
+  
     <script type="text/javascript">
       var drawing;
       function createDrawing() {
-        var index = 1;
         var numNodes = parseInt(location.search.split("?")[1]);
+        var container = document.getElementById("viewPane");
+        var graphInfo = document.getElementById("graphInfo");
 
         if(isNaN(numNodes)) { numNodes = 100; }
         
-        /* Change these values to draw more nodes (numNodes) */
-        switch(index) {
-          case 0:
-            drawing = new Drawing.SimpleGraph({layout: '2d', selection: false, numNodes: numNodes, showStats: true, showInfo: true});
-            break;
-          case 1:
-            drawing = new Drawing.SimpleGraph({layout: '3d', selection: true, numNodes: numNodes, graphLayout:{attraction: 5, repulsion: 0.5, iterations:1000}, showStats: true, showInfo: true});
-            break;
-        }
-        //document.getElementById("drawing_select").selectedIndex = index;
+        drawing = new Drawing.SimpleGraph(
+            { graphLayout:{ attraction: 5, repulsion: 0.5, iterations:1000 }, 
+              containerElement: container,  layout: '3d', 
+              selection: true,              numNodes: numNodes, 
+              showStats: false,             showInfo: true });
       }
     </script>
         
@@ -54,53 +37,53 @@
         margin: 0;
         padding: 0;
         background-color: #fcfcfc;
-        font: 11px courier;
         overflow: hidden;
       }
+      
       #graph-info {
         position: absolute;
         top: 0px;
         left: 40%;
         margin: 10px;
         background-color: #ffffe0;
-        color: #333;
         padding: 5px 10px;
       }
-      #options {
-        position: absolute;
-        top: 0;
-        right: 0;
-        z-index: 10;
+
+      #nav {
+        position:fixed;
+        top:20px;
+        left:0px;
+        z-index:100;
+      }
+
+      #nav table {
+        background-color: #FFF;
       }
     </style>
   </head>
   <body onload="createDrawing()">
-    <div id="options">
-<!--
-      <form>
-        <p>
-          <label>Drawing</label><br>
-          <select id="drawing_select" onchange="window.location.href = '?' + this.selectedIndex;">
-            <option>2D-Force-Directed</option>
-            <option selected="selected">3D-Force-Directed</option>
-            <option>Sphere Graph</option>
-          </select>
-        </p>
-        <p>
-          <input type="checkbox" id="show_labels" onclick="drawing.show_labels = this.checked;">
-          <label for="show_labels">Show labels</label>
-        </p>
-        <p>
-          <input type="button" value="Stop layout" onclick="drawing.stop_calculating();"> 
-        </p>
-      </form>
--->
+    <div id="viewPane">     
     </div>
 
-    <div style="position: absolute; bottom: 0;">
-      Rotate: Left Mouse Button and Move<br />
-      Zoom: Press Key S + Left Mouse Button and Move<br /> 
-      Drag: Press Key D + Left Mouse Button and Move
-    </div>    
+    <div id="nav" class="container-fluid">
+      <div class="sidebar">
+        <div style="padding-bottom:0px;">
+          <h4>Navigation</h4>
+          <table>
+            <tbody>
+              <tr>
+                <td><strong>Zoom</strong></td>
+                <td>S + Left Mouse</td>
+              </tr>
+              <tr>
+                <td><strong>Drag</strong></td>
+                <td>D + Left Mouse</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        
+      </div>
+    </div>
   </body>
 </html>

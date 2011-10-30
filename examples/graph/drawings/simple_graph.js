@@ -60,6 +60,7 @@ Drawing.SimpleGraph = function(options) {
   this.limit           = options.limit || 10;
   this.nodes_count     = options.numNodes || 20;
   this.edges_count     = options.numEdges || 10;
+  this.containerElement= options.containerElement || document.body;
 
   var camera, scene, renderer, interaction, geometry, object_selection, controls, stats;
 
@@ -71,8 +72,7 @@ Drawing.SimpleGraph = function(options) {
 
   var particleGeometry = new THREE.Geometry();
   var lineGeometry     = new THREE.Geometry();
-  
-  
+    
   var that=this;
 
   init();
@@ -97,14 +97,14 @@ Drawing.SimpleGraph = function(options) {
       noPan = false;
 
       staticMoving = false;
-      dynamicDampingFactor = 0.3;
+      dynamicDampingFactor = 0.15;
       
       domElement = renderer.domElement;
 
       keys: [ 65, 83, 68 ]
     }
     
-    camera.position.z = 5000;
+    camera.position.z = 10000;
 
     scene = new THREE.Scene();
     scene.fog = new THREE.FogExp2( 0xFFFFFF, 0.00004 );
@@ -120,14 +120,15 @@ Drawing.SimpleGraph = function(options) {
       
     scene.add( line );
 
-    document.body.appendChild( renderer.domElement );
+    that.containerElement.appendChild( renderer.domElement );
   
     // Stats.js
     if(that.show_stats) {
       stats = new Stats();
       stats.domElement.style.position = 'absolute';
       stats.domElement.style.top = '0px';
-      document.body.appendChild( stats.domElement );
+      
+      that.containerElement.appendChild( stats.domElement );
     }
 
     // Create info box
@@ -136,10 +137,9 @@ Drawing.SimpleGraph = function(options) {
       var id_attr = document.createAttribute("id");
       id_attr.nodeValue = "graph-info";
       info.setAttributeNode(id_attr);
-      document.body.appendChild( info );
+      
+      that.containerElement.appendChild( info );
     }
-
-    
   }
   
 
@@ -249,7 +249,7 @@ Drawing.SimpleGraph = function(options) {
 
       
       
-      geometry.__dirtyVertices = true;
+      particleGeometry.__dirtyVertices = true;
       lineGeometry.__dirtyVertices = true;
       
 
