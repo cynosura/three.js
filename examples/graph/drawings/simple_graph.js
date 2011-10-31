@@ -54,13 +54,13 @@ Drawing.SimpleGraph = function(options) {
   this.layout          = options.layout || "2d";
   this.layout_options  = options.graphLayout || {};
   this.show_stats      = options.showStats || false;
-  this.show_info       = options.showInfo || false;
   this.show_labels     = options.showLabels || false;
   this.selection       = options.selection || false;
   this.limit           = options.limit || 10;
   this.nodes_count     = options.numNodes || 20;
   this.edges_count     = options.numEdges || 10;
   this.containerElement= options.containerElement || document.body;
+  this.statsFunc       = options.statsFunc || (function(x,y){})
 
   var camera, scene, renderer, interaction, geometry, object_selection, controls, stats;
 
@@ -84,7 +84,7 @@ Drawing.SimpleGraph = function(options) {
     renderer = new THREE.WebGLRenderer({antialias: true});
     renderer.setSize( window.innerWidth, window.innerHeight );
     
-    camera = new THREE.PerspectiveCamera( 35, 
+    camera = new THREE.PerspectiveCamera( 55, 
       window.innerWidth / window.innerHeight, 1, 50000 );
 
     controls = new THREE.TrackballControls(camera);
@@ -131,15 +131,7 @@ Drawing.SimpleGraph = function(options) {
       that.containerElement.appendChild( stats.domElement );
     }
 
-    // Create info box
-    if(that.show_info) {
-      var info = document.createElement("div");
-      var id_attr = document.createAttribute("id");
-      id_attr.nodeValue = "graph-info";
-      info.setAttributeNode(id_attr);
-      
-      that.containerElement.appendChild( info );
-    }
+    
   }
   
 
@@ -188,10 +180,9 @@ Drawing.SimpleGraph = function(options) {
   	graph.layout = new Layout.ForceDirected(graph, that.layout_options);
     graph.layout.init();
       
-  	info_text.nodes = "Nodes " + graph.nodes.length;
-    info_text.edges = "Edges " + graph.edges.length;
   	
   	
+  	that.statsFunc(graph.nodes.length, graph.edges.length);
       
   	info_text.calc = "";
   }

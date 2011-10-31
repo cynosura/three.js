@@ -17,6 +17,15 @@
   
     <script type="text/javascript">
       var drawing;
+
+      function updateStats(vertices, edges) {
+        var nodeCount = document.getElementById("nodeCount");
+        var edgeCount = document.getElementById("edgeCount");
+        
+        nodeCount.innerText = vertices + " nodes";
+        edgeCount.innerText = edges + " edges";
+      }
+
       function createDrawing() {
         var numNodes = parseInt(location.search.split("?")[1]);
         var container = document.getElementById("viewPane");
@@ -25,7 +34,8 @@
         if(isNaN(numNodes)) { numNodes = 100; }
         
         drawing = new Drawing.SimpleGraph(
-            { graphLayout:{ attraction: 5, repulsion: 0.5, iterations:1000 }, 
+            { graphLayout:{ attraction: 5, repulsion: 0.5, iterations:1000 },
+              statsFunc: updateStats,
               containerElement: container,  layout: '3d', 
               selection: true,              numNodes: numNodes, 
               showStats: false,             showInfo: true });
@@ -68,6 +78,15 @@
     <div id="nav" class="container-fluid">
       <div class="sidebar">
         <div style="padding-bottom:0px;">
+          <table>
+            <tbody>
+              <tr>
+                <td><h4 id="nodeCount">Nodes: 0</h4></td>
+                <td><h4 id="edgeCount">Edges: 0</h4></td>
+              </tr>
+            </tbody>
+          </table>
+
           <h4>Navigation</h4>
           <table>
             <tbody>
