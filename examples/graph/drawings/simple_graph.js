@@ -1,66 +1,18 @@
-/**
-  @author David Piegza
-
-  Implements a simple graph drawing with force-directed placement in 2D and 3D.
-  
-  It uses the force-directed-layout implemented in:
-  https://github.com/davidpiegza/Graph-Visualization/blob/master/layouts/force-directed-layout.js
-  
-  Drawing is done with Three.js: http://github.com/mrdoob/three.js
-
-  To use this drawing, include the graph-min.js file and create a SimpleGraph object:
-  
-  <!DOCTYPE html>
-  <html>
-    <head>
-      <title>Graph Visualization</title>
-      <script type="text/javascript" src="path/to/graph-min.js"></script>
-    </head>
-    <body onload="new Drawing.SimpleGraph({layout: '3d', showStats: true, showInfo: true})">
-    </bod>
-  </html>
-  
-  Parameters:
-  options = {
-    layout: "2d" or "3d"
-
-    showStats: <bool>, displays FPS box
-    showInfo: <bool>, displays some info on the graph and layout
-              The info box is created as <div id="graph-info">, it must be
-              styled and positioned with CSS.
-
-
-    selection: <bool>, enables selection of nodes on mouse over (it displays some info
-               when the showInfo flag is set)
-
-
-    limit: <int>, maximum number of nodes
-    
-    numNodes: <int> - sets the number of nodes to create.
-    numEdges: <int> - sets the maximum number of edges for a node. A node will have 
-              1 to numEdges edges, this is set randomly.
-  }
-  
-
-  Feel free to contribute a new drawing!
-
- */
- 
 var Drawing = Drawing || {};
 
 Drawing.SimpleGraph = function(options) {
   var options = options || {};
   
-  this.layout          = options.layout || "2d";
-  this.layout_options  = options.graphLayout || {};
-  this.show_stats      = options.showStats || false;
-  this.show_labels     = options.showLabels || false;
-  this.selection       = options.selection || false;
-  this.limit           = options.limit || 10;
-  this.nodes_count     = options.numNodes || 20;
-  this.edges_count     = options.numEdges || 10;
+  this.layout          = options.layout           || "3d";
+  this.layout_options  = options.graphLayout      || {};
+  this.show_stats      = options.showStats        || false;
+  this.show_labels     = options.showLabels       || false;
+  this.selection       = options.selection        || false;
+  this.limit           = options.limit            || 100000;
+  this.nodes_count     = options.numNodes         || 20;
+  this.edges_count     = options.numEdges         || 10;
   this.containerElement= options.containerElement || document.body;
-  this.statsFunc       = options.statsFunc || (function(x,y){})
+  this.statsFunc       = options.statsFunc        || (function(x,y){})
 
   var camera, scene, renderer, interaction, geometry, object_selection, controls, stats;
 
@@ -69,6 +21,7 @@ Drawing.SimpleGraph = function(options) {
   
   var lineMaterial     = new THREE.LineBasicMaterial( { color: 0x333333, opacity: 0.4, linewidth: 0.05 } );
   var sprite           = THREE.ImageUtils.loadTexture( "textures/sprites/ball.png" );
+  var material         = new THREE.ParticleBasicMaterial( { size: 85, map: sprite, vertexColors: true } );
 
   var particleGeometry = new THREE.Geometry();
   var lineGeometry     = new THREE.Geometry();
@@ -90,11 +43,11 @@ Drawing.SimpleGraph = function(options) {
     controls = new THREE.TrackballControls(camera);
     with(controls) {
       rotateSpeed = 0.5;
-      zoomSpeed = 5.2;
-      panSpeed = 1;
+      zoomSpeed   = 5.2;
+      panSpeed    = 1;
 
-      noZoom = false;
-      noPan = false;
+      noZoom      = false;
+      noPan       = false;
 
       staticMoving = false;
       dynamicDampingFactor = 0.15;
@@ -109,7 +62,7 @@ Drawing.SimpleGraph = function(options) {
     scene = new THREE.Scene();
     scene.fog = new THREE.FogExp2( 0xFFFFFF, 0.00004 );
 
-    var material = new THREE.ParticleBasicMaterial( { size: 85, map: sprite, vertexColors: true } );
+    
     var mesh = new THREE.ParticleSystem(particleGeometry, material);
     
     scene.add( mesh );
@@ -129,17 +82,9 @@ Drawing.SimpleGraph = function(options) {
       stats.domElement.style.top = '0px';
       
       that.containerElement.appendChild( stats.domElement );
-    }
-
-    
+    }  
   }
   
-
-  /**
-   *  Creates a graph with random nodes and edges.
-   *  Number of nodes and edges can be set with
-   *  numNodes and numEdges.
-   */
   function createGraph() {
 
     var node = new Node(0);
@@ -148,23 +93,20 @@ Drawing.SimpleGraph = function(options) {
     graph.addNode(node);
     drawParticle(node);
 
-    var nodes = [];
-    nodes.push(node);
-
     var steps = 1;
-    while(nodes.length != 0 && steps < that.nodes_count) {
-      var node = nodes.shift();
-
+    while(graph.nodes.length < that.nodes_count) {
+      var node = graph.nodes.shift();
       var numEdges = randomFromTo(1, that.edges_count);
+
       for(var i=1; i <= numEdges; i++) {
         var target_node = new Node(i*steps);
+        
         if(graph.addNode(target_node)) {
           target_node.data.title = "This is node " + target_node.id;
           
           drawParticle(target_node);
-          nodes.push(target_node);
 
-          if(Math.random() > 0.2 && graph.addEdge(node, target_node)) {
+          if(graph.addEdge(node, target_node)) {
             drawEdge(node, target_node);
           }
         }
@@ -179,12 +121,8 @@ Drawing.SimpleGraph = function(options) {
     
   	graph.layout = new Layout.ForceDirected(graph, that.layout_options);
     graph.layout.init();
-      
-  	
   	
   	that.statsFunc(graph.nodes.length, graph.edges.length);
-      
-  	info_text.calc = "";
   }
 
   function drawParticle(node) {
@@ -212,46 +150,38 @@ Drawing.SimpleGraph = function(options) {
       lineGeometry.vertices.push(new THREE.Vertex(target.data.draw_object.position));
   }
 
+  function createCube( s, p ) {
+    cube = new THREE.Mesh (
+      new THREE.CubeGeometry( s, s, s ),
+      [ new THREE.MeshBasicMaterial({ wireframe: true, color: Math.random() * 0x000000, opacity: 0.5}),
+        new THREE.MeshBasicMaterial({ color: 0xffffff, opacity: 0.5, wireframe: true })]
+    );
+
+    cube.position = p;
+    scene.add( cube );
+  };
 
   function animate() {
     requestAnimationFrame( animate );
-
-    
-
     render();
     if(that.show_info) {
       printInfo();
     }
   }
 
-
   function render() {
-
-    // Update position of lines (edges)
-    /*for(var i=0; i<geometries.length; i++) {
-      geometries[i].__dirtyVertices = true;
-    }*/
-
-
     // Generate layout if not finished
     if(!graph.layout.finished) {
       info_text.calc = "<span style='color: red'>Calculating layout...</span>";
       graph.layout.generate();
 
-      
-      
       particleGeometry.__dirtyVertices = true;
       lineGeometry.__dirtyVertices = true;
-      
-
     } else {
       info_text.calc = "";
     }
   
-    
-
-    // Show labels if set
-    // It creates the labels when this options is set during visualization
+    /*
     if(that.show_labels) {
       var length = graph.nodes.length;
       for(var i=0; i<length; i++) {
@@ -272,7 +202,7 @@ Drawing.SimpleGraph = function(options) {
         }
       }
     } else {
-      /*
+      
       var length = graph.nodes.length;
       for(var i=0; i<length; i++) {
         var node = graph.nodes[i];
@@ -281,8 +211,8 @@ Drawing.SimpleGraph = function(options) {
           node.data.label_object = undefined;
         }
       
-      }*/
-    }
+      }
+    }*/
 
     // render selection
     /*if(that.selection) {

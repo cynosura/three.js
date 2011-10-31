@@ -87,11 +87,12 @@ Graph.prototype.reached_limit = function() {
 
 
 function Node(node_id) {
-  this.id = node_id;
-  this.nodesTo = [];
+  this.id        = node_id;
+  this.layout    = {};
+  this.nodesTo   = [];
   this.nodesFrom = [];
-  this.position = {};
-  this.data = {};
+  this.position  = {};
+  this.data      = {};
 }
 
 Node.prototype.addConnectedTo = function(node) {

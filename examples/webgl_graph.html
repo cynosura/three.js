@@ -34,12 +34,14 @@
         if(isNaN(numNodes)) { numNodes = 100; }
         
         drawing = new Drawing.SimpleGraph(
-            { graphLayout:{ attraction: 5, repulsion: 0.5, iterations:1000 },
-              statsFunc: updateStats,
-              containerElement: container,  layout: '3d', 
-              selection: true,              numNodes: numNodes, 
-              showStats: false,             showInfo: true });
+          { graphLayout:{ attraction: 5, repulsion: 0.5, iterations:1000 },
+            statsFunc: updateStats,
+            containerElement: container,  layout: '3d', 
+            selection: true,              numNodes: numNodes, 
+            showStats: false,             showInfo: true });
       }
+
+      window.onload = createDrawing;
     </script>
         
     <style type="text/css"> 
@@ -71,7 +73,7 @@
       }
     </style>
   </head>
-  <body onload="createDrawing()">
+  <body>
     <div id="viewPane">     
     </div>
 

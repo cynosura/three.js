@@ -88,7 +88,8 @@
 
 				cube = new THREE.Mesh (
 					new THREE.CubeGeometry( s, s, s ),
-					new THREE.MeshLambertMaterial( { color: 0x003300 } )
+					[ new THREE.MeshBasicMaterial({wireframe: true, color: Math.random() * 0x000000, opacity: 0.5}),
+					  new THREE.MeshBasicMaterial({color: 0xffffff, opacity: 0.5, wireframe: true})]
 				);
 
 				cube.position = p;
@@ -120,15 +121,11 @@
 				var c = THREE.Collisions.rayCastNearest( ray );
 
 				if ( c ) {
-
 					info.innerHTML += "Found @ distance " + c.distance.toFixed(2);
 					c.mesh.materials[ 0 ].color.setHex( 0xaa0000 );
-
 				} else {
-
 					info.innerHTML += "No intersection";
 					cube.materials[0].color.setHex( 0x003300 );
-
 				}
 
 

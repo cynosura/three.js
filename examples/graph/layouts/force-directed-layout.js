@@ -203,8 +203,6 @@ Layout.ForceDirected = function(graph, options) {
         var updated = true;
         node.position.x -=  (node.position.x-node.layout.tmp_pos_x)/10;
         node.position.y -=  (node.position.y-node.layout.tmp_pos_y)/10;
-
-        
         node.position.z -=  (node.position.z-node.layout.tmp_pos_z)/10;
         
         
