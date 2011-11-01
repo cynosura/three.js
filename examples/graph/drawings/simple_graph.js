@@ -14,7 +14,8 @@ Drawing.SimpleGraph = function(options) {
   this.containerElement= options.containerElement || document.body;
   this.statsFunc       = options.statsFunc        || (function(x,y){})
 
-  var camera, scene, renderer, interaction, geometry, object_selection, controls, stats;
+  var camera, scene, renderer, interaction, geometry, 
+      object_selection, controls, stats;
 
   var info_text        = {};
   var graph            = new Graph({limit: options.limit});
@@ -33,14 +34,17 @@ Drawing.SimpleGraph = function(options) {
   animate();
 
   function init() {
-    // Three.js initialization
-    renderer = new THREE.WebGLRenderer({antialias: false, clearAlpha: 0});
+    // renderer
+    renderer = new THREE.WebGLRenderer({antialias: false});
     renderer.setSize( window.innerWidth, window.innerHeight );
     
+    // camera
     camera = new THREE.PerspectiveCamera( 55, 
       window.innerWidth / window.innerHeight, 1, 50000 );
 
+    // controls
     controls = new THREE.TrackballControls(camera);
+    
     with(controls) {
       rotateSpeed = 0.5;
       zoomSpeed   = 5.2;
@@ -59,20 +63,30 @@ Drawing.SimpleGraph = function(options) {
     
     camera.position.z = 10000;
 
+    // scene
     scene = new THREE.Scene();
     scene.fog = new THREE.FogExp2( 0xFFFFFF, 0.00004 );
-
     
-    var mesh = new THREE.ParticleSystem(particleGeometry, material);
-    
-    scene.add( mesh );
+    // mesh & particle system for nodes
+    var particles = new THREE.ParticleSystem(particleGeometry, material);
+    particles.sortParticles = true;
+    scene.add( particles );
 
-    line = new THREE.Line(lineGeometry, lineMaterial, THREE.LinePieces );
+    // line geometry for edges
+    var line = new THREE.Line(lineGeometry, lineMaterial, THREE.LinePieces );
     line.scale.x = line.scale.y = line.scale.z = 1;
     line.originalScale = 1;
-      
     scene.add( line );
 
+    // light for selection cubes
+    //var sun = new THREE.DirectionalLight( 0xFFFFFF );
+    //sun.position = camera.position.clone();
+    //scene.add( sun );
+
+    // create a single cube
+    //createCube( 2000, new THREE.Vector3( 0,0,0 ) );
+    
+    // present the canvas
     that.containerElement.appendChild( renderer.domElement );
   
     // Stats.js
@@ -85,6 +99,16 @@ Drawing.SimpleGraph = function(options) {
     }  
   }
   
+  function createCube( s, p ) {
+    cube = new THREE.Mesh (
+      new THREE.CubeGeometry( s, s, s ),
+      new THREE.MeshLambertMaterial({wireframe: true, color: Math.random() * 0x000000, opacity: 1.0})
+    );
+
+    cube.position = p;
+    scene.add( cube );
+  };
+
   function createGraph() {
     var nodeStack = [];
     var nodeid = 0;
