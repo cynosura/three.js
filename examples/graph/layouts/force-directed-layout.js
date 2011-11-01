@@ -85,14 +85,13 @@ Layout.ForceDirected = function(graph, options) {
    * the temperature is nearly zero.
    */
   this.generate = function() {
-    if(layout_iterations < this.max_iterations && temperature > 0.000001) {
+    if(layout_iterations < this.max_iterations && temperature > 0.0001) {
       var start = new Date().getTime();
       
       // calculate repulsion
       for(var i=0; i < nodes_length; i++) {
         var node_v = graph.nodes[i];
         
-
         node_v.layout = node_v.layout || {};
         var layout_v = node_v.layout;
 
@@ -124,7 +123,6 @@ Layout.ForceDirected = function(graph, options) {
             var delta_y = layout_v.tmp_pos_y - layout_u.tmp_pos_y;
             var delta_z = layout_v.tmp_pos_z - layout_u.tmp_pos_z;
             
-
             var delta_length = Math.max(EPSILON, Math.sqrt((delta_x * delta_x) + (delta_y * delta_y)));
             var delta_length_z = Math.max(EPSILON, Math.sqrt((delta_z * delta_z) + (delta_y * delta_y)));
 
@@ -159,35 +157,33 @@ Layout.ForceDirected = function(graph, options) {
         var delta_y = edge.source.layout.tmp_pos_y - edge.target.layout.tmp_pos_y;
         var delta_z = edge.source.layout.tmp_pos_z - edge.target.layout.tmp_pos_z;
         
-
         var delta_length = Math.max(EPSILON, Math.sqrt((delta_x * delta_x) + (delta_y * delta_y)));
         var delta_length_z = Math.max(EPSILON, Math.sqrt((delta_z * delta_z) + (delta_y * delta_y)));
         
         var force = (delta_length * delta_length) / attraction_constant;
         var force_z = (delta_length_z * delta_length_z) / attraction_constant;
 
-        edge.source.layout.force -= force;
-        edge.target.layout.force += force;
+        var source_layout = edge.source.layout;
+        var target_layout = edge.target.layout;
 
-        edge.source.layout.offset_x -= (delta_x / delta_length) * force;
-        edge.source.layout.offset_y -= (delta_y / delta_length) * force;
-        
-        edge.source.layout.offset_z -= (delta_z / delta_length_z) * force_z;
-        
+        source_layout.force -= force;
+        target_layout.force += force;
 
-        edge.target.layout.offset_x += (delta_x / delta_length) * force;
-        edge.target.layout.offset_y += (delta_y / delta_length) * force;
+        source_layout.offset_x -= (delta_x / delta_length) * force;
+        source_layout.offset_y -= (delta_y / delta_length) * force;
+        source_layout.offset_z -= (delta_z / delta_length_z) * force_z;
         
-        edge.target.layout.offset_z += (delta_z / delta_length_z) * force_z;
+        target_layout.offset_x += (delta_x / delta_length) * force;
+        target_layout.offset_y += (delta_y / delta_length) * force;
+        target_layout.offset_z += (delta_z / delta_length_z) * force_z;
       }
       
       // calculate positions
       for(var i=0; i < nodes_length; i++) {
         var node = graph.nodes[i];
+        
         var delta_length = Math.max(EPSILON, Math.sqrt(node.layout.offset_x * node.layout.offset_x + node.layout.offset_y * node.layout.offset_y));
-        
-        var delta_length_z = Math.max(EPSILON, Math.sqrt(node.layout.offset_z * node.layout.offset_z + node.layout.offset_y * node.layout.offset_y));
-        
+        var delta_length_z = Math.max(EPSILON, Math.sqrt(node.layout.offset_z * node.layout.offset_z + node.layout.offset_y * node.layout.offset_y));        
 
         node.layout.tmp_pos_x += (node.layout.offset_x / delta_length) * Math.min(delta_length, temperature);
         node.layout.tmp_pos_y += (node.layout.offset_y / delta_length) * Math.min(delta_length, temperature);
@@ -195,6 +191,7 @@ Layout.ForceDirected = function(graph, options) {
         node.layout.tmp_pos_z += (node.layout.offset_z / delta_length_z) * Math.min(delta_length_z, temperature);
         
         var updated = true;
+        
         node.position.x -=  (node.position.x-node.layout.tmp_pos_x) / 10;
         node.position.y -=  (node.position.y-node.layout.tmp_pos_y) / 10;
         node.position.z -=  (node.position.z-node.layout.tmp_pos_z) / 10;
@@ -204,6 +201,7 @@ Layout.ForceDirected = function(graph, options) {
           callback_positionUpdated(node);
         }
       }
+      
       temperature *= (1 - (layout_iterations / this.max_iterations));
       layout_iterations++;
 

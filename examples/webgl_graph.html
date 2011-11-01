@@ -31,10 +31,10 @@
         var container = document.getElementById("viewPane");
         var graphInfo = document.getElementById("graphInfo");
 
-        if(isNaN(numNodes)) { numNodes = 100; }
+        if(isNaN(numNodes)) { numNodes = 400; }
         
         drawing = new Drawing.SimpleGraph(
-          { graphLayout:{ attraction: 5, repulsion: 0.5, iterations:1000 },
+          { graphLayout:{ attraction: 8, repulsion: 0.5, iterations:800 },
             statsFunc: updateStats,
             containerElement: container,  layout: '3d', 
             selection: true,              numNodes: numNodes, 
@@ -99,6 +99,17 @@
               <tr>
                 <td><strong>Drag</strong></td>
                 <td>D + Left Mouse</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h4>Search</h4>
+          <table>
+            <tbody>
+              <tr>
+                <td>
+                  <input class="span2" id="" name="" type="text" placeholder="item id">
+                  <button class="btn">Search</button></td>
               </tr>
             </tbody>
           </table>

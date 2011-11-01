@@ -34,7 +34,7 @@ Drawing.SimpleGraph = function(options) {
 
   function init() {
     // Three.js initialization
-    renderer = new THREE.WebGLRenderer({antialias: true});
+    renderer = new THREE.WebGLRenderer({antialias: false, clearAlpha: 0});
     renderer.setSize( window.innerWidth, window.innerHeight );
     
     camera = new THREE.PerspectiveCamera( 55, 
