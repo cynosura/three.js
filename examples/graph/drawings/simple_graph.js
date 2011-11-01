@@ -86,20 +86,23 @@ Drawing.SimpleGraph = function(options) {
   }
   
   function createGraph() {
-
-    var node = new Node(0);
+    var nodeStack = [];
+    var nodeid = 0;
+    
+    var node = new Node(nodeid++);
     node.data.title = "This is node " + node.id;
     
     graph.addNode(node);
+    nodeStack.push(node);
     drawParticle(node);
 
-    var steps = 1;
-    while(graph.nodes.length < that.nodes_count) {
-      var node = graph.nodes.shift();
+    while(nodeid < that.nodes_count) {
+      var node = nodeStack.shift(); // pops the stack
       var numEdges = randomFromTo(1, that.edges_count);
 
-      for(var i=1; i <= numEdges; i++) {
-        var target_node = new Node(i*steps);
+      for(var i=1; i <= numEdges && nodeid < that.nodes_count; i++) {
+        var target_node = new Node(nodeid++);
+        nodeStack.push(target_node);
         
         if(graph.addNode(target_node)) {
           target_node.data.title = "This is node " + target_node.id;
@@ -111,7 +114,6 @@ Drawing.SimpleGraph = function(options) {
           }
         }
       }
-      steps++;
     } 
     
     that.layout_options.width = that.layout_options.width || 2000;

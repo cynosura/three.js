@@ -148,7 +148,6 @@ Layout.ForceDirected = function(graph, options) {
 
             layout_v.offset_z += (delta_z / delta_length_z) * force_z;
             layout_u.offset_z -= (delta_z / delta_length_z) * force_z;
-            
           }
         }
       }
@@ -162,13 +161,10 @@ Layout.ForceDirected = function(graph, options) {
         
 
         var delta_length = Math.max(EPSILON, Math.sqrt((delta_x * delta_x) + (delta_y * delta_y)));
-        
         var delta_length_z = Math.max(EPSILON, Math.sqrt((delta_z * delta_z) + (delta_y * delta_y)));
         
         var force = (delta_length * delta_length) / attraction_constant;
-        
-          var force_z = (delta_length_z * delta_length_z) / attraction_constant;
-
+        var force_z = (delta_length_z * delta_length_z) / attraction_constant;
 
         edge.source.layout.force -= force;
         edge.target.layout.force += force;
@@ -176,14 +172,13 @@ Layout.ForceDirected = function(graph, options) {
         edge.source.layout.offset_x -= (delta_x / delta_length) * force;
         edge.source.layout.offset_y -= (delta_y / delta_length) * force;
         
-          edge.source.layout.offset_z -= (delta_z / delta_length_z) * force_z;
+        edge.source.layout.offset_z -= (delta_z / delta_length_z) * force_z;
         
 
         edge.target.layout.offset_x += (delta_x / delta_length) * force;
         edge.target.layout.offset_y += (delta_y / delta_length) * force;
         
         edge.target.layout.offset_z += (delta_z / delta_length_z) * force_z;
-        
       }
       
       // calculate positions
@@ -199,12 +194,10 @@ Layout.ForceDirected = function(graph, options) {
         
         node.layout.tmp_pos_z += (node.layout.offset_z / delta_length_z) * Math.min(delta_length_z, temperature);
         
-
         var updated = true;
-        node.position.x -=  (node.position.x-node.layout.tmp_pos_x)/10;
-        node.position.y -=  (node.position.y-node.layout.tmp_pos_y)/10;
-        node.position.z -=  (node.position.z-node.layout.tmp_pos_z)/10;
-        
+        node.position.x -=  (node.position.x-node.layout.tmp_pos_x) / 10;
+        node.position.y -=  (node.position.y-node.layout.tmp_pos_y) / 10;
+        node.position.z -=  (node.position.z-node.layout.tmp_pos_z) / 10;
         
         // execute callback function if positions has been updated
         if(updated && typeof callback_positionUpdated === 'function') {

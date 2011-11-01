@@ -88,7 +88,7 @@ Graph.prototype.reached_limit = function() {
 
 function Node(node_id) {
   this.id        = node_id;
-  this.layout    = {};
+  //this.layout    = {};
   this.nodesTo   = [];
   this.nodesFrom = [];
   this.position  = {};
